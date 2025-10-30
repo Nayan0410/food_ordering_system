@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import Customer from "./models/customer_model.js"; // <-- make sure this file exists
 import Vendor from "./models/vendor_model.js";
 import MenuItem from "./models/menuItem_model.js";
+import Order from "./models/order_model.js";
 
 dotenv.config();
 
@@ -82,6 +83,30 @@ app.post("/test-add-menu", async (req, res) => {
     res.status(201).json({ message: "Menu item saved", id: saved._id });
   } catch (err) {
     console.error("Error saving menu item:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// test route to create a sample order
+app.post("/test-add-order", async (req, res) => {
+  try {
+    const sample = new Order({
+      customer: "6722d9b2f9f8b5a0c1234567", // replace later with real IDs
+      vendor: "6722d9b2f9f8b5a0c1234568",
+      items: [
+        { menuItem: "6722d9b2f9f8b5a0c1234569", quantity: 2 },
+        { menuItem: "6722d9b2f9f8b5a0c1234570", quantity: 1 },
+      ],
+      totalAmount: 360,
+      deliveryAddress: "123 MG Road, Jaipur",
+      orderStatus: "Pending",
+      paymentMethod: "COD",
+    });
+
+    const saved = await sample.save();
+    res.status(201).json({ message: "Order saved", id: saved._id });
+  } catch (err) {
+    console.error("Error saving order:", err);
     res.status(500).json({ error: err.message });
   }
 });
