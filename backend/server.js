@@ -6,6 +6,7 @@ import Customer from "./models/customer_model.js"; // <-- make sure this file ex
 import Vendor from "./models/vendor_model.js";
 import MenuItem from "./models/menuItem_model.js";
 import Order from "./models/order_model.js";
+import vendorRouter from "./routes/vendor_routes.js";
 
 dotenv.config();
 
@@ -41,6 +42,9 @@ app.post("/test-add-customer", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+// --- Vendor Authentication Routes ---
+app.use("/api/vendors", vendorRouter);
 
 // --- Start the server ---
 const PORT = process.env.PORT || 5000;
