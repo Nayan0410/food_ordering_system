@@ -1,22 +1,44 @@
+// server.js
 import express from "express";
+import mongoose from "mongoose";
 import dotenv from "dotenv";
-import cors from "cors";
-import connectDB from "./config/db.js";
+import Customer from "./models/customer_model.js"; // <-- make sure this file exists
 
 dotenv.config();
-connectDB();
 
 const app = express();
-
-// Middleware
-app.use(cors());
 app.use(express.json());
 
-// Test Route
+// --- MongoDB Connection ---
+mongoose
+  .connect(process.env.MONGO_URI)
+  .then(() => console.log("✅ MongoDB connected successfully"))
+  .catch((err) => console.error("❌ MongoDB connection error:", err));
+
+// --- Test route to confirm server is working ---
 app.get("/", (req, res) => {
-  res.send("Local Food Ordering API is running 🚀");
+  res.send("API is running...");
 });
 
-// Start Server
+// --- Test route to add a sample customer ---
+app.post("/test-add-customer", async (req, res) => {
+  try {
+    const sample = new Customer({
+      name: "Test Customer",
+      email: `test-${Date.now()}@example.com`,
+      phone: "9999999999",
+      address: "Test Address",
+      password: "temp1234",
+    });
+
+    const saved = await sample.save();
+    res.status(201).json({ message: "Customer saved", id: saved._id });
+  } catch (err) {
+    console.error("Error saving customer:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// --- Start the server ---
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
