@@ -3,6 +3,7 @@ import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import Customer from "./models/customer_model.js"; // <-- make sure this file exists
+import Vendor from "./models/vendor_model.js";
 
 dotenv.config();
 
@@ -42,3 +43,23 @@ app.post("/test-add-customer", async (req, res) => {
 // --- Start the server ---
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+
+// test route to add a sample vendor
+app.post("/test-add-vendor", async (req, res) => {
+  try {
+    const sample = new Vendor({
+      shopName: "Foodie Corner",
+      ownerName: "Ravi Kumar",
+      email: `vendor-${Date.now()}@example.com`,
+      phone: "8888888888",
+      address: "Jaipur",
+      password: "vendor123",
+    });
+
+    const saved = await sample.save();
+    res.status(201).json({ message: "Vendor saved", id: saved._id });
+  } catch (err) {
+    console.error("Error saving vendor:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
