@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import Customer from "./models/customer_model.js"; // <-- make sure this file exists
 import Vendor from "./models/vendor_model.js";
+import MenuItem from "./models/menuItem_model.js";
 
 dotenv.config();
 
@@ -60,6 +61,27 @@ app.post("/test-add-vendor", async (req, res) => {
     res.status(201).json({ message: "Vendor saved", id: saved._id });
   } catch (err) {
     console.error("Error saving vendor:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// test route to add a sample menu item
+app.post("/test-add-menu", async (req, res) => {
+  try {
+    const sample = new MenuItem({
+      vendor: "6722d9b2f9f8b5a0c1234567", // replace later with a real Vendor _id from your DB
+      itemName: "Veg Burger",
+      description: "Crispy veg patty with lettuce and mayo",
+      price: 120,
+      category: "Snacks",
+      available: true,
+      image: "https://example.com/veg-burger.jpg",
+    });
+
+    const saved = await sample.save();
+    res.status(201).json({ message: "Menu item saved", id: saved._id });
+  } catch (err) {
+    console.error("Error saving menu item:", err);
     res.status(500).json({ error: err.message });
   }
 });
