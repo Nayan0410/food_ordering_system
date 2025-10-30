@@ -1,16 +1,25 @@
 // routes/vendor_routes.js
-
-const express = require("express");
-const router = express.Router();
-const {
+import express from "express";
+import {
   registerVendor,
   loginVendor,
-} = require("../controllers/vendor_controller");
+  addMenuItem,
+  getMenuItems,
+  updateMenuItem,
+  deleteMenuItem,
+} from "../controllers/vendor_controller.js";
+import { verifyVendorJWT } from "../middleware/vendor_auth.js";
 
-// Route for Vendor Signup
+const router = express.Router();
+
+// ---------- Vendor Auth ----------
 router.post("/signup", registerVendor);
-
-// Route for Vendor Login
 router.post("/login", loginVendor);
 
-module.exports = router;
+// ---------- Vendor Menu Management ----------
+router.post("/menu", verifyVendorJWT, addMenuItem); // Add new item
+router.get("/menu", verifyVendorJWT, getMenuItems); // View all items
+router.put("/menu/:itemId", verifyVendorJWT, updateMenuItem); // Edit item
+router.delete("/menu/:itemId", verifyVendorJWT, deleteMenuItem); // Delete item
+
+export default router;

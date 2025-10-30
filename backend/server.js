@@ -2,29 +2,46 @@
 import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
-import Customer from "./models/customer_model.js"; // <-- make sure this file exists
+
+// --- Import Models ---
+import Customer from "./models/customer_model.js";
 import Vendor from "./models/vendor_model.js";
 import MenuItem from "./models/menuItem_model.js";
 import Order from "./models/order_model.js";
-import vendorRouter from "./routes/vendor_routes.js";
+
+// --- Import Routes ---
+import vendorRoutes from "./routes/vendor_routes.js";
 
 dotenv.config();
 
 const app = express();
 app.use(express.json());
 
-// --- MongoDB Connection ---
+// -------------------------
+// ✅ MongoDB Connection
+// -------------------------
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => console.log("✅ MongoDB connected successfully"))
   .catch((err) => console.error("❌ MongoDB connection error:", err));
 
-// --- Test route to confirm server is working ---
+// -------------------------
+// ✅ Basic Test Route
+// -------------------------
 app.get("/", (req, res) => {
-  res.send("API is running...");
+  res.send("🍴 Local Food Ordering System API is running...");
 });
 
-// --- Test route to add a sample customer ---
+// -------------------------
+// ✅ Vendor Authentication + Menu Management Routes
+// -------------------------
+app.use("/api/vendor", vendorRoutes); // ✅ (singular) matches your controller routes
+
+// -------------------------
+// ✅ Test Routes (for temporary manual checks)
+// -------------------------
+
+// 1️⃣ Add a sample customer
 app.post("/test-add-customer", async (req, res) => {
   try {
     const sample = new Customer({
@@ -43,14 +60,7 @@ app.post("/test-add-customer", async (req, res) => {
   }
 });
 
-// --- Vendor Authentication Routes ---
-app.use("/api/vendors", vendorRouter);
-
-// --- Start the server ---
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
-
-// test route to add a sample vendor
+// 2️⃣ Add a sample vendor
 app.post("/test-add-vendor", async (req, res) => {
   try {
     const sample = new Vendor({
@@ -70,11 +80,11 @@ app.post("/test-add-vendor", async (req, res) => {
   }
 });
 
-// test route to add a sample menu item
+// 3️⃣ Add a sample menu item
 app.post("/test-add-menu", async (req, res) => {
   try {
     const sample = new MenuItem({
-      vendor: "6722d9b2f9f8b5a0c1234567", // replace later with a real Vendor _id from your DB
+      vendor: "6722d9b2f9f8b5a0c1234567", // replace with actual Vendor _id
       itemName: "Veg Burger",
       description: "Crispy veg patty with lettuce and mayo",
       price: 120,
@@ -91,7 +101,7 @@ app.post("/test-add-menu", async (req, res) => {
   }
 });
 
-// test route to create a sample order
+// 4️⃣ Add a sample order
 app.post("/test-add-order", async (req, res) => {
   try {
     const sample = new Order({
@@ -114,3 +124,11 @@ app.post("/test-add-order", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+// -------------------------
+// ✅ Start Server
+// -------------------------
+const PORT = process.env.SERVER_PORT || 5000;
+app.listen(PORT, () =>
+  console.log(`🚀 Server running on http://localhost:${PORT}`)
+);

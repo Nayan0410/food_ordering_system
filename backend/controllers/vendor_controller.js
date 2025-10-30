@@ -106,3 +106,94 @@ export const loginVendor = async (req, res) => {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
+
+import MenuItem from "../models/menuItem_model.js";
+
+// ================= MENU MANAGEMENT =================
+
+// 1️⃣ Add new menu item
+export const addMenuItem = async (req, res) => {
+  try {
+    const vendorId = req.vendor.id; // from JWT middleware
+    const { itemName, description, price, category, available, image } =
+      req.body;
+
+    const newItem = new MenuItem({
+      vendor: vendorId,
+      itemName,
+      description,
+      price,
+      category,
+      available,
+      image,
+    });
+
+    await newItem.save();
+    res
+      .status(201)
+      .json({ message: "Menu item added successfully", item: newItem });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Failed to add menu item", error: error.message });
+  }
+};
+
+// 2️⃣ View all menu items (for a specific vendor)
+export const getMenuItems = async (req, res) => {
+  try {
+    const vendorId = req.vendor.id;
+    const items = await MenuItem.find({ vendor: vendorId });
+    res.status(200).json(items);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Failed to fetch menu items", error: error.message });
+  }
+};
+
+// 3️⃣ Edit a menu item
+export const updateMenuItem = async (req, res) => {
+  try {
+    const vendorId = req.vendor.id;
+    const { itemId } = req.params;
+
+    const item = await MenuItem.findOneAndUpdate(
+      { _id: itemId, vendor: vendorId },
+      req.body,
+      { new: true }
+    );
+
+    if (!item) return res.status(404).json({ message: "Menu item not found" });
+
+    res.status(200).json({ message: "Menu item updated successfully", item });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Failed to update menu item", error: error.message });
+  }
+};
+
+// 4️⃣ Delete a menu item
+export const deleteMenuItem = async (req, res) => {
+  try {
+    const vendorId = req.vendor.id;
+    const { itemId } = req.params;
+
+    const deletedItem = await MenuItem.findOneAndDelete({
+      _id: itemId,
+      vendor: vendorId,
+    });
+
+    if (!deletedItem)
+      return res
+        .status(404)
+        .json({ message: "Menu item not found or unauthorized" });
+
+    res.status(200).json({ message: "Menu item deleted successfully" });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Failed to delete menu item", error: error.message });
+  }
+};
