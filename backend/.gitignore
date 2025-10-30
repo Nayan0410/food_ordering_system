@@ -1,3 +1,22 @@
+# Node modules
 node_modules/
+
+# Environment variables
 .env
+
+# Logs
+logs/
+*.log
+
+# System files
 .DS_Store
+
+# Build and cache
+dist/
+build/
+tmp/
+temp/
+.cache/
+
+# Coverage reports
+coverage/
