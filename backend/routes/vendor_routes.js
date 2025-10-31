@@ -7,6 +7,7 @@ import {
   getMenuItems,
   updateMenuItem,
   deleteMenuItem,
+  updateDeliveryPrice,
 } from "../controllers/vendor_controller.js";
 import { verifyVendorJWT } from "../middleware/vendor_auth.js";
 
@@ -21,5 +22,6 @@ router.post("/menu", verifyVendorJWT, addMenuItem); // Add new item
 router.get("/menu", verifyVendorJWT, getMenuItems); // View all items
 router.put("/menu/:itemId", verifyVendorJWT, updateMenuItem); // Edit item
 router.delete("/menu/:itemId", verifyVendorJWT, deleteMenuItem); // Delete item
+router.put("/update-delivery-price", verifyVendorJWT, updateDeliveryPrice);
 
 export default router;

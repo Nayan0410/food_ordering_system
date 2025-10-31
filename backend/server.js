@@ -64,12 +64,13 @@ app.post("/test-add-customer", async (req, res) => {
 app.post("/test-add-vendor", async (req, res) => {
   try {
     const sample = new Vendor({
-      shopName: "Foodie Corner",
-      ownerName: "Ravi Kumar",
-      email: `vendor-${Date.now()}@example.com`,
-      phone: "8888888888",
-      address: "Jaipur",
-      password: "vendor123",
+      name: "Sneha Sharma",
+      email: `tastytreats-${Date.now()}@example.com`,
+      password: "temp1234",
+      shopName: "Tasty Treats",
+      phone: "9999999999",
+      address: "Pune",
+      deliveryPrice: 40,
     });
 
     const saved = await sample.save();

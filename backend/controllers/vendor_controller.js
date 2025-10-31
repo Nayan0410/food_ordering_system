@@ -35,6 +35,7 @@ export const registerVendor = async (req, res) => {
       email,
       password: hashedPassword,
       shopName,
+      deliveryPrice: deliveryPrice || 0,
     });
 
     // Save vendor to DB
@@ -54,6 +55,7 @@ export const registerVendor = async (req, res) => {
         name: newVendor.name,
         email: newVendor.email,
         shopName: newVendor.shopName,
+        deliveryPrice: newVendor.deliveryPrice,
       },
       token,
     });
@@ -195,5 +197,43 @@ export const deleteMenuItem = async (req, res) => {
     res
       .status(500)
       .json({ message: "Failed to delete menu item", error: error.message });
+  }
+};
+
+// -----------------------------
+// @desc    Update vendor delivery price
+// @route   PUT /api/vendors/update-delivery-price
+// @access  Private (Vendor only)
+// -----------------------------
+export const updateDeliveryPrice = async (req, res) => {
+  try {
+    const vendorId = req.vendor.id; // from JWT middleware
+    const { deliveryPrice } = req.body;
+
+    if (deliveryPrice == null) {
+      return res.status(400).json({ message: "Delivery price is required" });
+    }
+
+    const updatedVendor = await Vendor.findByIdAndUpdate(
+      vendorId,
+      { deliveryPrice },
+      { new: true }
+    );
+
+    if (!updatedVendor) {
+      return res.status(404).json({ message: "Vendor not found" });
+    }
+
+    res.status(200).json({
+      message: "Delivery price updated successfully",
+      deliveryPrice: updatedVendor.deliveryPrice,
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({
+        message: "Failed to update delivery price",
+        error: error.message,
+      });
   }
 };
