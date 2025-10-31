@@ -11,6 +11,7 @@ import Order from "./models/order_model.js";
 
 // --- Import Routes ---
 import vendorRoutes from "./routes/vendor_routes.js";
+import customerRoutes from "./routes/customer_routes.js";
 
 dotenv.config();
 
@@ -36,6 +37,11 @@ app.get("/", (req, res) => {
 // ✅ Vendor Authentication + Menu Management Routes
 // -------------------------
 app.use("/api/vendor", vendorRoutes); // ✅ (singular) matches your controller routes
+
+// -------------------------
+// ✅ Customer Authentication
+// -------------------------
+app.use("/api/customers", customerRoutes);
 
 // -------------------------
 // ✅ Test Routes (for temporary manual checks)
