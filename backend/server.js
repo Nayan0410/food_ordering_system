@@ -26,10 +26,14 @@ app.get("/", (req, res) => {
 });
 
 // -------------------------
-// ✅ Vendor Routes
+// ✅ Vendor Routes (Auth + Menu)
 // -------------------------
-app.use("/api/vendor", vendorRoutes); // signup, login, menu mgmt
-app.use("/api/vendor/orders", vendorOrderRoutes); // vendor order system
+app.use("/api/vendor", vendorRoutes);
+
+// -------------------------
+// ✅ Vendor Order Routes
+// -------------------------
+app.use("/api/vendor", vendorOrderRoutes);
 
 // -------------------------
 // ✅ Customer Routes
@@ -47,7 +51,7 @@ app.use("/api/cart", cartRoutes);
 app.use("/api/order", orderRoutes);
 
 // -------------------------
-// ✅ 404 Handler (important)
+// ✅ 404 Handler
 // -------------------------
 app.use((req, res) => {
   res.status(404).json({ message: "Route not found" });
