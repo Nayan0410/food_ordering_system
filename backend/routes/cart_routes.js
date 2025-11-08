@@ -17,14 +17,14 @@ router.use(authCustomer);
 // ✅ Add item to cart
 router.post("/add", addItemToCart);
 
+// ✅ Get cart
+router.get("/", getCustomerCart);
+
 // ✅ Remove item from cart
 router.post("/remove", removeItemFromCart);
 
 // ✅ Update quantity
 router.post("/update", updateCartItemQuantity);
-
-// ✅ Get cart
-router.get("/", getCustomerCart);
 
 // ✅ Clear cart
 router.post("/clear", clearCart);

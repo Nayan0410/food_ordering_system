@@ -14,7 +14,7 @@ const cartItemSchema = new mongoose.Schema(
       min: 1,
     },
   },
-  { _id: false } // prevents Mongoose from creating a separate _id for each item
+  { _id: false }
 );
 
 // Main cart schema
@@ -24,7 +24,8 @@ const cartSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Customer",
       required: true,
-      unique: true, // ensure 1 cart per customer
+      unique: true,
+      index: true, // ✅ faster lookups
     },
     items: {
       type: [cartItemSchema],
@@ -34,6 +35,5 @@ const cartSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Model export
 const Cart = mongoose.model("Cart", cartSchema);
 export default Cart;

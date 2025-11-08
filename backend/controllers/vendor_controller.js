@@ -1,14 +1,12 @@
 // controllers/vendor_controller.js
 
-// --- Imports ---
 import Vendor from "../models/vendor_model.js";
+import MenuItem from "../models/menuItem_model.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
 // -----------------------------
-// @desc    Register a new vendor
-// @route   POST /api/vendor/signup
-// @access  Public
+// ✅ Register a new vendor
 // -----------------------------
 export const registerVendor = async (req, res) => {
   try {
@@ -23,9 +21,14 @@ export const registerVendor = async (req, res) => {
       logo,
     } = req.body;
 
-    // Check if vendor already exists
+    if (!name || !email || !password || !shopName) {
+      return res.status(400).json({ message: "Missing required fields" });
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
+
     const existingVendor = await Vendor.findOne({
-      $or: [{ email }, { shopName }],
+      $or: [{ email: normalizedEmail }, { shopName }],
     });
 
     if (existingVendor) {
@@ -34,16 +37,14 @@ export const registerVendor = async (req, res) => {
       });
     }
 
-    // Hash password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // Create vendor
     const newVendor = new Vendor({
-      name,
-      email,
+      name: name.trim(),
+      email: normalizedEmail,
       password: hashedPassword,
-      shopName,
+      shopName: shopName.trim(),
       phone: phone || "",
       address: address || "",
       deliveryPrice: deliveryPrice || 0,
@@ -52,7 +53,6 @@ export const registerVendor = async (req, res) => {
 
     await newVendor.save();
 
-    // JWT token
     const token = jwt.sign(
       { id: newVendor._id, role: "vendor" },
       process.env.JWT_SECRET,
@@ -75,22 +75,20 @@ export const registerVendor = async (req, res) => {
     });
   } catch (error) {
     console.error("Error in registerVendor:", error);
-    return res
-      .status(500)
-      .json({ message: "Server error", error: error.message });
+    return res.status(500).json({ message: "Server error" });
   }
 };
 
 // -----------------------------
-// @desc    Login vendor
-// @route   POST /api/vendor/login
-// @access  Public
+// ✅ Login vendor
 // -----------------------------
 export const loginVendor = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const vendor = await Vendor.findOne({ email });
+    const normalizedEmail = email.trim().toLowerCase();
+
+    const vendor = await Vendor.findOne({ email: normalizedEmail });
     if (!vendor) {
       return res.status(400).json({ message: "Invalid email or password" });
     }
@@ -115,36 +113,39 @@ export const loginVendor = async (req, res) => {
         shopName: vendor.shopName,
         phone: vendor.phone,
         address: vendor.address,
+        logo: vendor.logo, // ✅ Added logo here
       },
       token,
     });
   } catch (error) {
     console.error("Error in loginVendor:", error);
-    return res
-      .status(500)
-      .json({ message: "Server error", error: error.message });
+    return res.status(500).json({ message: "Server error" });
   }
 };
 
-import MenuItem from "../models/menuItem_model.js";
-
 // ================= MENU MANAGEMENT =================
 
-// Add menu item
+// ✅ Add menu item
 export const addMenuItem = async (req, res) => {
   try {
     const vendorId = req.vendor.id;
     const { itemName, description, price, category, available, image } =
       req.body;
 
+    if (!itemName || !price || !category) {
+      return res
+        .status(400)
+        .json({ message: "Item name, price, and category are required" });
+    }
+
     const newItem = new MenuItem({
       vendor: vendorId,
-      itemName,
-      description,
+      itemName: itemName.trim(),
+      description: description || "",
       price,
-      category,
-      available,
-      image,
+      category: category.trim(),
+      available: available ?? true,
+      image: image || "",
     });
 
     await newItem.save();
@@ -160,7 +161,7 @@ export const addMenuItem = async (req, res) => {
   }
 };
 
-// Get menu items
+// ✅ Get all menu items
 export const getMenuItems = async (req, res) => {
   try {
     const vendorId = req.vendor.id;
@@ -174,15 +175,29 @@ export const getMenuItems = async (req, res) => {
   }
 };
 
-// Update menu item
+// ✅ Update menu item
 export const updateMenuItem = async (req, res) => {
   try {
     const vendorId = req.vendor.id;
     const { itemId } = req.params;
 
+    const allowedFields = [
+      "itemName",
+      "description",
+      "price",
+      "category",
+      "available",
+      "image",
+    ];
+    const updateData = {};
+
+    for (let key of allowedFields) {
+      if (req.body[key] !== undefined) updateData[key] = req.body[key];
+    }
+
     const item = await MenuItem.findOneAndUpdate(
       { _id: itemId, vendor: vendorId },
-      req.body,
+      updateData,
       { new: true }
     );
 
@@ -202,7 +217,7 @@ export const updateMenuItem = async (req, res) => {
   }
 };
 
-// Delete menu item
+// ✅ Delete menu item
 export const deleteMenuItem = async (req, res) => {
   try {
     const vendorId = req.vendor.id;
@@ -214,9 +229,9 @@ export const deleteMenuItem = async (req, res) => {
     });
 
     if (!deletedItem) {
-      return res.status(404).json({
-        message: "Menu item not found or unauthorized",
-      });
+      return res
+        .status(404)
+        .json({ message: "Menu item not found or unauthorized" });
     }
 
     return res.status(200).json({ message: "Menu item deleted successfully" });
@@ -228,7 +243,7 @@ export const deleteMenuItem = async (req, res) => {
   }
 };
 
-// Update delivery price
+// ✅ Update delivery price
 export const updateDeliveryPrice = async (req, res) => {
   try {
     const vendorId = req.vendor.id;

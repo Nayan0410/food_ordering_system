@@ -30,7 +30,7 @@ export const getSingleVendorOrder = async (req, res) => {
 
     const order = await Order.findOne({
       _id: orderId,
-      vendor: vendorId, // ensure vendor accesses only OWN orders
+      vendor: vendorId,
     });
 
     if (!order) {
@@ -47,7 +47,7 @@ export const getSingleVendorOrder = async (req, res) => {
 };
 
 // --------------------------------------------------
-// ✅ UPDATE ORDER STATUS (Step-by-step only)
+// ✅ UPDATE ORDER STATUS (Step-by-step transitions)
 // --------------------------------------------------
 export const updateOrderStatus = async (req, res) => {
   try {
@@ -75,8 +75,8 @@ export const updateOrderStatus = async (req, res) => {
       return res.status(404).json({ message: "Order not found" });
     }
 
-    // ✅ Step-by-step validation
     const current = order.orderStatus;
+
     const nextStep = {
       Pending: "Preparing",
       Preparing: "Out for Delivery",
@@ -85,11 +85,10 @@ export const updateOrderStatus = async (req, res) => {
 
     if (nextStep[current] !== newStatus) {
       return res.status(400).json({
-        message: `Invalid status transition. You can only move from ${current} → ${nextStep[current]}.`,
+        message: `Invalid transition: ${current} → ${newStatus}. Allowed: ${current} → ${nextStep[current]}`,
       });
     }
 
-    // ✅ Update the status
     order.orderStatus = newStatus;
     await order.save();
 

@@ -11,68 +11,68 @@ export const placeOrder = async (req, res) => {
   try {
     const customerId = req.customerId;
 
-    // 1️⃣ Fetch customer details
+    // 1️⃣ Fetch customer
     const customer = await Customer.findById(customerId);
-    if (!customer)
+    if (!customer) {
       return res.status(404).json({ message: "Customer not found" });
+    }
 
-    // 2️⃣ Fetch customer's cart
-    let cart = await Cart.findOne({ customer: customerId }).populate(
+    // 2️⃣ Fetch cart with populated items
+    const cart = await Cart.findOne({ customer: customerId }).populate(
       "items.item"
     );
+
     if (!cart || cart.items.length === 0) {
       return res.status(400).json({ message: "Your cart is empty" });
     }
 
-    // 3️⃣ Determine vendor from the first item
-    const firstItem = await MenuItem.findById(cart.items[0].item);
-    const vendorId = firstItem.vendor;
+    // 3️⃣ Vendor from first item
+    const firstItemVendor = cart.items[0].item.vendor;
+    const vendor = await Vendor.findById(firstItemVendor);
 
-    const vendor = await Vendor.findById(vendorId);
-    if (!vendor) return res.status(404).json({ message: "Vendor not found" });
-
-    // 4️⃣ Calculate subtotal
-    let subtotal = 0;
-    const orderItems = [];
-
-    for (let cartItem of cart.items) {
-      const item = await MenuItem.findById(cartItem.item);
-
-      orderItems.push({
-        menuItem: item._id,
-        itemName: item.itemName, // ✅ snapshot
-        price: item.price, // ✅ snapshot
-        quantity: cartItem.quantity,
-      });
-
-      subtotal += item.price * cartItem.quantity;
+    if (!vendor) {
+      return res.status(404).json({ message: "Vendor not found" });
     }
 
-    // 5️⃣ Delivery price
+    // 4️⃣ Build order items + calculate subtotal
+    let subtotal = 0;
+    const orderItems = cart.items.map((cartItem) => {
+      const item = cartItem.item;
+      subtotal += item.price * cartItem.quantity;
+
+      return {
+        menuItem: item._id,
+        itemName: item.itemName, // snapshot
+        price: item.price, // snapshot
+        quantity: cartItem.quantity,
+      };
+    });
+
+    // 5️⃣ Delivery charge
     const deliveryPrice = vendor.deliveryPrice || 0;
 
-    // 6️⃣ Final total
+    // 6️⃣ Total
     const totalAmount = subtotal + deliveryPrice;
 
-    // 7️⃣ Create the order
+    // 7️⃣ Create order
     const newOrder = await Order.create({
       customer: customerId,
       customerName: customer.name,
       customerPhone: customer.phone,
       deliveryAddress: customer.address,
 
-      vendor: vendorId,
+      vendor: vendor._id,
 
       items: orderItems,
       subtotal,
       deliveryPrice,
       totalAmount,
 
-      orderStatus: "Pending",
       paymentMethod: "COD",
+      orderStatus: "Pending",
     });
 
-    // 8️⃣ Clear the cart automatically
+    // 8️⃣ Clear cart
     cart.items = [];
     await cart.save();
 
@@ -81,14 +81,15 @@ export const placeOrder = async (req, res) => {
       order: newOrder,
     });
   } catch (error) {
-    return res
-      .status(500)
-      .json({ message: "Error placing order", error: error.message });
+    return res.status(500).json({
+      message: "Error placing order",
+      error: error.message,
+    });
   }
 };
 
 // --------------------------------------------------
-// ✅ GET ALL ORDERS OF A CUSTOMER
+// ✅ GET ALL ORDERS FOR A CUSTOMER
 // --------------------------------------------------
 export const getCustomerOrders = async (req, res) => {
   try {
@@ -100,9 +101,10 @@ export const getCustomerOrders = async (req, res) => {
 
     return res.status(200).json({ orders });
   } catch (error) {
-    return res
-      .status(500)
-      .json({ message: "Error fetching orders", error: error.message });
+    return res.status(500).json({
+      message: "Error fetching orders",
+      error: error.message,
+    });
   }
 };
 
@@ -116,15 +118,18 @@ export const getSingleOrder = async (req, res) => {
 
     const order = await Order.findOne({
       _id: orderId,
-      customer: customerId, // ensure customer can only view their own orders
-    }).populate("vendor", "shopName address phone");
+      customer: customerId,
+    }).populate("vendor", "shopName address phone logo");
 
-    if (!order) return res.status(404).json({ message: "Order not found" });
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
 
     return res.status(200).json({ order });
   } catch (error) {
-    return res
-      .status(500)
-      .json({ message: "Error fetching order", error: error.message });
+    return res.status(500).json({
+      message: "Error fetching order",
+      error: error.message,
+    });
   }
 };

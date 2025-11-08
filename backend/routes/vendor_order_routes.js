@@ -18,7 +18,7 @@ router.get("/orders", getVendorOrders);
 // ✅ Get single order details
 router.get("/orders/:orderId", getSingleVendorOrder);
 
-// ✅ Update order status (Pending → Preparing → Out for Delivery → Delivered)
+// ✅ Update order status
 router.patch("/orders/:orderId/status", updateOrderStatus);
 
 export default router;

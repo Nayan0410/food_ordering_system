@@ -5,24 +5,24 @@ import {
   getCustomerProfile,
   getAllVendors,
   getVendorById,
-  getVendorMenu, // ✅ add this
+  getVendorMenu,
 } from "../controllers/customer_controller.js";
 import authCustomer from "../middleware/customer_auth.js";
 
 const router = express.Router();
 
 // -----------------------------
-// Authentication Routes
+// ✅ Authentication Routes
 // -----------------------------
 router.post("/signup", registerCustomer);
 router.post("/login", loginCustomer);
 router.get("/profile", authCustomer, getCustomerProfile);
 
 // -----------------------------
-// Public Browsing Routes
+// ✅ Public Vendor Browsing
 // -----------------------------
-router.get("/vendors", getAllVendors); // ✅ Browse all vendors
-router.get("/vendor/:vendorId", getVendorById); // ✅ Single vendor details
-router.get("/vendor/:vendorId/menu", getVendorMenu); // ✅ Vendor’s menu
+router.get("/vendors", getAllVendors);
+router.get("/vendors/:vendorId", getVendorById);
+router.get("/vendors/:vendorId/menu", getVendorMenu);
 
 export default router;

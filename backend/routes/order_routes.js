@@ -18,7 +18,7 @@ router.post("/place", placeOrder);
 // ✅ Get all orders of the logged-in customer
 router.get("/my-orders", getCustomerOrders);
 
-// ✅ Get details of a single order
+// ✅ Get single order details
 router.get("/order/:orderId", getSingleOrder);
 
 export default router;

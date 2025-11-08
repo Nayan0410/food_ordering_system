@@ -1,33 +1,22 @@
 // server.js
 import express from "express";
-import mongoose from "mongoose";
 import dotenv from "dotenv";
+import cors from "cors";
+import connectDB from "./config/db.js";
 
-// --- Import Models (optional if not used directly) ---
-import Customer from "./models/customer_model.js";
-import Vendor from "./models/vendor_model.js";
-import MenuItem from "./models/menuItem_model.js";
-import Order from "./models/order_model.js";
-
-// --- Import Routes ---
+// --- Routes ---
 import vendorRoutes from "./routes/vendor_routes.js";
+import vendorOrderRoutes from "./routes/vendor_order_routes.js";
 import customerRoutes from "./routes/customer_routes.js";
 import cartRoutes from "./routes/cart_routes.js";
 import orderRoutes from "./routes/order_routes.js";
-import vendorOrderRoutes from "./routes/vendor_order_routes.js";
 
 dotenv.config();
+connectDB();
 
 const app = express();
 app.use(express.json());
-
-// -------------------------
-// ✅ MongoDB Connection
-// -------------------------
-mongoose
-  .connect(process.env.MONGO_URI)
-  .then(() => console.log("✅ MongoDB connected successfully"))
-  .catch((err) => console.error("❌ MongoDB connection error:", err));
+app.use(cors());
 
 // -------------------------
 // ✅ Basic Test Route
@@ -37,22 +26,18 @@ app.get("/", (req, res) => {
 });
 
 // -------------------------
-// ✅ Vendor Auth + Vendor Features
+// ✅ Vendor Routes
 // -------------------------
-app.use("/api/vendor", vendorRoutes);
+app.use("/api/vendor", vendorRoutes); // signup, login, menu mgmt
+app.use("/api/vendor/orders", vendorOrderRoutes); // vendor order system
 
 // -------------------------
-// ✅ Vendor Order Routes
-// -------------------------
-app.use("/api/vendor", vendorOrderRoutes);
-
-// -------------------------
-// ✅ Customer Authentication
+// ✅ Customer Routes
 // -------------------------
 app.use("/api/customers", customerRoutes);
 
 // -------------------------
-// ✅ Customer Cart Routes
+// ✅ Cart Routes
 // -------------------------
 app.use("/api/cart", cartRoutes);
 
@@ -60,6 +45,13 @@ app.use("/api/cart", cartRoutes);
 // ✅ Customer Order Routes
 // -------------------------
 app.use("/api/order", orderRoutes);
+
+// -------------------------
+// ✅ 404 Handler (important)
+// -------------------------
+app.use((req, res) => {
+  res.status(404).json({ message: "Route not found" });
+});
 
 // -------------------------
 // ✅ Start Server

@@ -1,19 +1,24 @@
-// backend/models/menuItemModel.js
 import mongoose from "mongoose";
 
 const menuItemSchema = new mongoose.Schema(
   {
     vendor: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Vendor", // links menu item to the vendor who added it
+      ref: "Vendor",
       required: true,
     },
-    itemName: { type: String, required: true },
-    description: { type: String },
+
+    itemName: { type: String, required: true, trim: true },
+
+    description: { type: String, trim: true },
+
     price: { type: Number, required: true },
-    category: { type: String, required: true }, // e.g. 'Snacks', 'Beverages'
+
+    category: { type: String, required: true, trim: true, lowercase: true },
+
     available: { type: Boolean, default: true },
-    image: { type: String }, // optional - can store image URL later
+
+    image: { type: String, trim: true },
   },
   { timestamps: true }
 );

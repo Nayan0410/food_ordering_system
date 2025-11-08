@@ -1,4 +1,3 @@
-// backend/models/orderModel.js
 import mongoose from "mongoose";
 
 const orderSchema = new mongoose.Schema(
@@ -12,8 +11,8 @@ const orderSchema = new mongoose.Schema(
       required: true,
     },
 
-    customerName: { type: String, required: true }, // ✅ Added
-    customerPhone: { type: String, required: true }, // ✅ Added
+    customerName: { type: String, required: true, trim: true },
+    customerPhone: { type: String, required: true, trim: true },
 
     // -------------------------
     // Vendor Information
@@ -29,13 +28,14 @@ const orderSchema = new mongoose.Schema(
     // -------------------------
     items: [
       {
+        _id: false, // ✅ no need for subdocument _id
         menuItem: {
           type: mongoose.Schema.Types.ObjectId,
           ref: "MenuItem",
           required: true,
         },
-        itemName: { type: String, required: true }, // ✅ Snapshot for safety
-        price: { type: Number, required: true }, // ✅ Snapshot of price
+        itemName: { type: String, required: true, trim: true },
+        price: { type: Number, required: true },
         quantity: { type: Number, required: true, min: 1 },
       },
     ],
@@ -43,14 +43,14 @@ const orderSchema = new mongoose.Schema(
     // -------------------------
     // Pricing
     // -------------------------
-    subtotal: { type: Number, required: true }, // ✅ Added
-    deliveryPrice: { type: Number, required: true }, // ✅ Added
+    subtotal: { type: Number, required: true },
+    deliveryPrice: { type: Number, required: true },
     totalAmount: { type: Number, required: true },
 
     // -------------------------
     // Delivery Address
     // -------------------------
-    deliveryAddress: { type: String, required: true },
+    deliveryAddress: { type: String, required: true, trim: true },
 
     // -------------------------
     // Order Status + Payment
@@ -63,7 +63,7 @@ const orderSchema = new mongoose.Schema(
 
     paymentMethod: {
       type: String,
-      enum: ["COD"], // only Cash on Delivery for now
+      enum: ["COD"],
       default: "COD",
     },
   },
