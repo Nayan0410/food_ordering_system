@@ -8,6 +8,7 @@ const vendorSchema = new mongoose.Schema({
   phone: { type: String },
   address: { type: String },
   deliveryPrice: { type: Number, default: 0 },
+  logo: { type: String },
   createdAt: { type: Date, default: Date.now },
 });
 

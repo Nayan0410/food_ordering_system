@@ -19,7 +19,8 @@ export const registerVendor = async (req, res) => {
       shopName,
       phone,
       address,
-      deliveryPrice, // ✅ FIXED: added this
+      deliveryPrice,
+      logo,
     } = req.body;
 
     // Check if vendor already exists
@@ -45,7 +46,8 @@ export const registerVendor = async (req, res) => {
       shopName,
       phone: phone || "",
       address: address || "",
-      deliveryPrice: deliveryPrice || 0, // ✅ FIXED
+      deliveryPrice: deliveryPrice || 0,
+      logo: logo || "",
     });
 
     await newVendor.save();
@@ -67,6 +69,7 @@ export const registerVendor = async (req, res) => {
         phone: newVendor.phone,
         address: newVendor.address,
         deliveryPrice: newVendor.deliveryPrice,
+        logo: newVendor.logo,
       },
       token,
     });
