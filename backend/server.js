@@ -12,7 +12,8 @@ import Order from "./models/order_model.js";
 // --- Import Routes ---
 import vendorRoutes from "./routes/vendor_routes.js";
 import customerRoutes from "./routes/customer_routes.js";
-import cartRoutes from "./routes/cart_routes.js"; // ✅ Added
+import cartRoutes from "./routes/cart_routes.js";
+import orderRoutes from "./routes/order_routes.js"; // ✅ Added
 
 dotenv.config();
 
@@ -37,17 +38,22 @@ app.get("/", (req, res) => {
 // -------------------------
 // ✅ Vendor Authentication + Menu Management Routes
 // -------------------------
-app.use("/api/vendor", vendorRoutes); // ✅ (singular) matches your controller routes
+app.use("/api/vendor", vendorRoutes);
 
 // -------------------------
-// ✅ Customer Authentication
+// ✅ Customer Authentication Routes
 // -------------------------
 app.use("/api/customers", customerRoutes);
 
 // -------------------------
 // ✅ Cart Routes (Protected)
 // -------------------------
-app.use("/api/cart", cartRoutes); // ✅ Added
+app.use("/api/cart", cartRoutes);
+
+// -------------------------
+// ✅ Order Routes (Protected)
+// -------------------------
+app.use("/api/order", orderRoutes); // ✅ Added
 
 // -------------------------
 // ✅ Test Routes (for temporary manual checks)
@@ -118,7 +124,7 @@ app.post("/test-add-menu", async (req, res) => {
 app.post("/test-add-order", async (req, res) => {
   try {
     const sample = new Order({
-      customer: "6722d9b2f9f8b5a0c1234567", // replace later with real IDs
+      customer: "6722d9b2f9f8b5a0c1234567",
       vendor: "6722d9b2f9f8b5a0c1234568",
       items: [
         { menuItem: "6722d9b2f9f8b5a0c1234569", quantity: 2 },
