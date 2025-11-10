@@ -2,65 +2,85 @@ import mongoose from "mongoose";
 
 const orderSchema = new mongoose.Schema(
   {
-    // -------------------------
-    // Customer Information
-    // -------------------------
+    // Customer info
     customer: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Customer",
       required: true,
     },
+    customerName: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    customerPhone: {
+      type: String,
+      required: true,
+      trim: true,
+    },
 
-    customerName: { type: String, required: true, trim: true },
-    customerPhone: { type: String, required: true, trim: true },
-
-    // -------------------------
-    // Vendor Information
-    // -------------------------
+    // Vendor info
     vendor: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Vendor",
       required: true,
     },
 
-    // -------------------------
-    // Order Items (Snapshot)
-    // -------------------------
+    // Order items (snapshots)
     items: [
       {
-        _id: false, // ✅ no need for subdocument _id
+        _id: false,
         menuItem: {
           type: mongoose.Schema.Types.ObjectId,
           ref: "MenuItem",
           required: true,
         },
-        itemName: { type: String, required: true, trim: true },
-        price: { type: Number, required: true },
-        quantity: { type: Number, required: true, min: 1 },
+        itemName: {
+          type: String,
+          required: true,
+          trim: true,
+        },
+        price: {
+          type: Number,
+          required: true,
+        },
+        quantity: {
+          type: Number,
+          required: true,
+          min: 1,
+        },
       },
     ],
 
-    // -------------------------
     // Pricing
-    // -------------------------
-    subtotal: { type: Number, required: true },
-    deliveryPrice: { type: Number, required: true },
-    totalAmount: { type: Number, required: true },
+    subtotal: {
+      type: Number,
+      required: true,
+    },
+    deliveryPrice: {
+      type: Number,
+      required: true,
+    },
+    totalAmount: {
+      type: Number,
+      required: true,
+    },
 
-    // -------------------------
-    // Delivery Address
-    // -------------------------
-    deliveryAddress: { type: String, required: true, trim: true },
+    // Address
+    deliveryAddress: {
+      type: String,
+      required: true,
+      trim: true,
+    },
 
-    // -------------------------
-    // Order Status + Payment
-    // -------------------------
+    // Order status
     orderStatus: {
       type: String,
       enum: ["Pending", "Preparing", "Out for Delivery", "Delivered"],
       default: "Pending",
     },
 
+    // Payment
     paymentMethod: {
       type: String,
       enum: ["COD"],

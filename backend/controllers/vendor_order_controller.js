@@ -1,8 +1,6 @@
 import Order from "../models/order_model.js";
 
-// --------------------------------------------------
-// ✅ GET ALL ORDERS OF A VENDOR
-// --------------------------------------------------
+// Get all orders for a vendor
 export const getVendorOrders = async (req, res) => {
   try {
     const vendorId = req.vendor.id;
@@ -11,18 +9,16 @@ export const getVendorOrders = async (req, res) => {
       createdAt: -1,
     });
 
-    return res.status(200).json({ orders });
-  } catch (error) {
-    return res.status(500).json({
+    res.status(200).json({ orders });
+  } catch (err) {
+    res.status(500).json({
       message: "Error fetching vendor orders",
-      error: error.message,
+      error: err.message,
     });
   }
 };
 
-// --------------------------------------------------
-// ✅ GET SINGLE ORDER DETAILS FOR VENDOR
-// --------------------------------------------------
+// Get a single order for a vendor
 export const getSingleVendorOrder = async (req, res) => {
   try {
     const vendorId = req.vendor.id;
@@ -37,18 +33,16 @@ export const getSingleVendorOrder = async (req, res) => {
       return res.status(404).json({ message: "Order not found" });
     }
 
-    return res.status(200).json({ order });
-  } catch (error) {
-    return res.status(500).json({
+    res.status(200).json({ order });
+  } catch (err) {
+    res.status(500).json({
       message: "Error fetching order",
-      error: error.message,
+      error: err.message,
     });
   }
 };
 
-// --------------------------------------------------
-// ✅ UPDATE ORDER STATUS (Step-by-step transitions)
-// --------------------------------------------------
+// Update order status (step-by-step)
 export const updateOrderStatus = async (req, res) => {
   try {
     const vendorId = req.vendor.id;
@@ -77,29 +71,29 @@ export const updateOrderStatus = async (req, res) => {
 
     const current = order.orderStatus;
 
-    const nextStep = {
+    const nextStatus = {
       Pending: "Preparing",
       Preparing: "Out for Delivery",
       "Out for Delivery": "Delivered",
     };
 
-    if (nextStep[current] !== newStatus) {
+    if (nextStatus[current] !== newStatus) {
       return res.status(400).json({
-        message: `Invalid transition: ${current} → ${newStatus}. Allowed: ${current} → ${nextStep[current]}`,
+        message: `Invalid transition: ${current} → ${newStatus}. Allowed: ${current} → ${nextStatus[current]}`,
       });
     }
 
     order.orderStatus = newStatus;
     await order.save();
 
-    return res.status(200).json({
+    res.status(200).json({
       message: "Order status updated successfully",
       order,
     });
-  } catch (error) {
-    return res.status(500).json({
+  } catch (err) {
+    res.status(500).json({
       message: "Error updating order status",
-      error: error.message,
+      error: err.message,
     });
   }
 };

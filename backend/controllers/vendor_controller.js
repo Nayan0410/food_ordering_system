@@ -1,13 +1,9 @@
-// controllers/vendor_controller.js
-
 import Vendor from "../models/vendor_model.js";
 import MenuItem from "../models/menuItem_model.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
-// -----------------------------
-// ✅ Register a new vendor
-// -----------------------------
+// Register a new vendor
 export const registerVendor = async (req, res) => {
   try {
     const {
@@ -37,8 +33,7 @@ export const registerVendor = async (req, res) => {
       });
     }
 
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
+    const hashedPassword = await bcrypt.hash(password.trim(), 10);
 
     const newVendor = new Vendor({
       name: name.trim(),
@@ -59,7 +54,7 @@ export const registerVendor = async (req, res) => {
       { expiresIn: "7d" }
     );
 
-    return res.status(201).json({
+    res.status(201).json({
       message: "Vendor registered successfully",
       vendor: {
         id: newVendor._id,
@@ -73,28 +68,26 @@ export const registerVendor = async (req, res) => {
       },
       token,
     });
-  } catch (error) {
-    console.error("Error in registerVendor:", error);
-    return res.status(500).json({ message: "Server error" });
+  } catch (err) {
+    console.error("registerVendor:", err);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
-// -----------------------------
-// ✅ Login vendor
-// -----------------------------
+// Login vendor
 export const loginVendor = async (req, res) => {
   try {
     const { email, password } = req.body;
 
     const normalizedEmail = email.trim().toLowerCase();
-
     const vendor = await Vendor.findOne({ email: normalizedEmail });
+
     if (!vendor) {
       return res.status(400).json({ message: "Invalid email or password" });
     }
 
-    const isMatch = await bcrypt.compare(password, vendor.password);
-    if (!isMatch) {
+    const match = await bcrypt.compare(password, vendor.password);
+    if (!match) {
       return res.status(400).json({ message: "Invalid email or password" });
     }
 
@@ -104,7 +97,7 @@ export const loginVendor = async (req, res) => {
       { expiresIn: "7d" }
     );
 
-    return res.status(200).json({
+    res.status(200).json({
       message: "Login successful",
       vendor: {
         id: vendor._id,
@@ -113,19 +106,17 @@ export const loginVendor = async (req, res) => {
         shopName: vendor.shopName,
         phone: vendor.phone,
         address: vendor.address,
-        logo: vendor.logo, // ✅ Added logo here
+        logo: vendor.logo,
       },
       token,
     });
-  } catch (error) {
-    console.error("Error in loginVendor:", error);
-    return res.status(500).json({ message: "Server error" });
+  } catch (err) {
+    console.error("loginVendor:", err);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
-// ================= MENU MANAGEMENT =================
-
-// ✅ Add menu item
+// Add menu item
 export const addMenuItem = async (req, res) => {
   try {
     const vendorId = req.vendor.id;
@@ -133,9 +124,9 @@ export const addMenuItem = async (req, res) => {
       req.body;
 
     if (!itemName || !price || !category) {
-      return res
-        .status(400)
-        .json({ message: "Item name, price, and category are required" });
+      return res.status(400).json({
+        message: "Item name, price, and category are required",
+      });
     }
 
     const newItem = new MenuItem({
@@ -149,33 +140,35 @@ export const addMenuItem = async (req, res) => {
     });
 
     await newItem.save();
-    return res.status(201).json({
+
+    res.status(201).json({
       message: "Menu item added successfully",
       item: newItem,
     });
-  } catch (error) {
-    return res.status(500).json({
+  } catch (err) {
+    res.status(500).json({
       message: "Failed to add menu item",
-      error: error.message,
+      error: err.message,
     });
   }
 };
 
-// ✅ Get all menu items
+// Get all menu items
 export const getMenuItems = async (req, res) => {
   try {
     const vendorId = req.vendor.id;
     const items = await MenuItem.find({ vendor: vendorId });
-    return res.status(200).json(items);
-  } catch (error) {
-    return res.status(500).json({
+
+    res.status(200).json(items);
+  } catch (err) {
+    res.status(500).json({
       message: "Failed to fetch menu items",
-      error: error.message,
+      error: err.message,
     });
   }
 };
 
-// ✅ Update menu item
+// Update menu item
 export const updateMenuItem = async (req, res) => {
   try {
     const vendorId = req.vendor.id;
@@ -189,10 +182,12 @@ export const updateMenuItem = async (req, res) => {
       "available",
       "image",
     ];
-    const updateData = {};
 
-    for (let key of allowedFields) {
-      if (req.body[key] !== undefined) updateData[key] = req.body[key];
+    const updateData = {};
+    for (const field of allowedFields) {
+      if (req.body[field] !== undefined) {
+        updateData[field] = req.body[field];
+      }
     }
 
     const item = await MenuItem.findOneAndUpdate(
@@ -205,19 +200,19 @@ export const updateMenuItem = async (req, res) => {
       return res.status(404).json({ message: "Menu item not found" });
     }
 
-    return res.status(200).json({
+    res.status(200).json({
       message: "Menu item updated successfully",
       item,
     });
-  } catch (error) {
-    return res.status(500).json({
+  } catch (err) {
+    res.status(500).json({
       message: "Failed to update menu item",
-      error: error.message,
+      error: err.message,
     });
   }
 };
 
-// ✅ Delete menu item
+// Delete menu item
 export const deleteMenuItem = async (req, res) => {
   try {
     const vendorId = req.vendor.id;
@@ -234,16 +229,18 @@ export const deleteMenuItem = async (req, res) => {
         .json({ message: "Menu item not found or unauthorized" });
     }
 
-    return res.status(200).json({ message: "Menu item deleted successfully" });
-  } catch (error) {
-    return res.status(500).json({
+    res.status(200).json({
+      message: "Menu item deleted successfully",
+    });
+  } catch (err) {
+    res.status(500).json({
       message: "Failed to delete menu item",
-      error: error.message,
+      error: err.message,
     });
   }
 };
 
-// ✅ Update delivery price
+// Update delivery price
 export const updateDeliveryPrice = async (req, res) => {
   try {
     const vendorId = req.vendor.id;
@@ -263,14 +260,14 @@ export const updateDeliveryPrice = async (req, res) => {
       return res.status(404).json({ message: "Vendor not found" });
     }
 
-    return res.status(200).json({
+    res.status(200).json({
       message: "Delivery price updated successfully",
       deliveryPrice: updatedVendor.deliveryPrice,
     });
-  } catch (error) {
-    return res.status(500).json({
+  } catch (err) {
+    res.status(500).json({
       message: "Failed to update delivery price",
-      error: error.message,
+      error: err.message,
     });
   }
 };

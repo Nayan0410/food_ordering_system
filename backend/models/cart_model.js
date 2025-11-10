@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-// Schema for each item inside the cart
+// Cart item schema
 const cartItemSchema = new mongoose.Schema(
   {
     item: {
@@ -25,7 +25,7 @@ const cartSchema = new mongoose.Schema(
       ref: "Customer",
       required: true,
       unique: true,
-      index: true, // ✅ faster lookups
+      index: true,
     },
     items: {
       type: [cartItemSchema],

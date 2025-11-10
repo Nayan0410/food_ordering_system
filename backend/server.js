@@ -1,10 +1,11 @@
 // server.js
+
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import connectDB from "./config/db.js";
 
-// --- Routes ---
+// Routes
 import vendorRoutes from "./routes/vendor_routes.js";
 import vendorOrderRoutes from "./routes/vendor_order_routes.js";
 import customerRoutes from "./routes/customer_routes.js";
@@ -18,49 +19,34 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-// -------------------------
-// ✅ Basic Test Route
-// -------------------------
+// Test route
 app.get("/", (req, res) => {
   res.send("🍴 Local Food Ordering System API is running...");
 });
 
-// -------------------------
-// ✅ Vendor Routes (Auth + Menu)
-// -------------------------
+// Vendor auth & menu routes
 app.use("/api/vendor", vendorRoutes);
 
-// -------------------------
-// ✅ Vendor Order Routes
-// -------------------------
+// Vendor order routes
 app.use("/api/vendor", vendorOrderRoutes);
 
-// -------------------------
-// ✅ Customer Routes
-// -------------------------
+// Customer routes
 app.use("/api/customers", customerRoutes);
 
-// -------------------------
-// ✅ Cart Routes
-// -------------------------
+// Cart routes
 app.use("/api/cart", cartRoutes);
 
-// -------------------------
-// ✅ Customer Order Routes
-// -------------------------
+// Customer order routes
 app.use("/api/order", orderRoutes);
 
-// -------------------------
-// ✅ 404 Handler
-// -------------------------
+// 404 handler
 app.use((req, res) => {
   res.status(404).json({ message: "Route not found" });
 });
 
-// -------------------------
-// ✅ Start Server
-// -------------------------
+// Start server
 const PORT = process.env.SERVER_PORT || 5000;
-app.listen(PORT, () =>
-  console.log(`🚀 Server running on http://localhost:${PORT}`)
-);
+
+app.listen(PORT, () => {
+  console.log(`🚀 Server running at http://localhost:${PORT}`);
+});
