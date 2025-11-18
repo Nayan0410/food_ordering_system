@@ -17,8 +17,8 @@ export const registerVendor = async (req, res) => {
       logo,
     } = req.body;
 
-    if (!name || !email || !password || !shopName) {
-      return res.status(400).json({ message: "Missing required fields" });
+    if (!name || !email || !password || !shopName || !phone || !address) {
+      return res.status(400).json({ message: "All fields are required" });
     }
 
     const normalizedEmail = email.trim().toLowerCase();
@@ -79,6 +79,10 @@ export const loginVendor = async (req, res) => {
   try {
     const { email, password } = req.body;
 
+    if (!email || !password) {
+      return res.status(400).json({ message: "Email & password required" });
+    }
+
     const normalizedEmail = email.trim().toLowerCase();
     const vendor = await Vendor.findOne({ email: normalizedEmail });
 
@@ -123,20 +127,21 @@ export const addMenuItem = async (req, res) => {
     const { itemName, description, price, category, available, image } =
       req.body;
 
-    if (!itemName || !price || !category) {
+    if (!itemName || !description || !price || !category || !image) {
       return res.status(400).json({
-        message: "Item name, price, and category are required",
+        message:
+          "All fields (itemName, description, price, category, image) are required",
       });
     }
 
     const newItem = new MenuItem({
       vendor: vendorId,
       itemName: itemName.trim(),
-      description: description || "",
+      description: description.trim(),
       price,
       category: category.trim(),
       available: available ?? true,
-      image: image || "",
+      image: image.trim(),
     });
 
     await newItem.save();
